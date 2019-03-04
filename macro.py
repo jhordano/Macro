@@ -111,6 +111,13 @@ print(table_a(wage_adj["wage_adj"]))
 
 # %%
 ## Question b
+
+nber = np.array([ ['1953-07-01', '1954-05-01'],['1957-08-01', '1958-04-01'],
+        ['1960-04-01', '1961-02-01'],['1969-12-01', '1970-11-01'],
+        ['1973-11-01', '1975-03-01'],['1980-01-01', '1980-06-01'],
+        ['1981-07-01', '1982-11-01'],['1990-07-01', '1991-03-01'],
+        ['2001-03-01', '2001-11-01'],['2007-12-01', '2009-06-01']])
+
 # BBQ Rule
 
 # Peak: y_t+k ; : : : ; y_t-1 < y_t > y_t+1; : : : ; yt+k
@@ -129,9 +136,54 @@ def BBQ(serie):
             
 BBQ(unemp)        
 BBQ(wage_adj)
-BBQ(gnp)        
+BBQ(gnp)
+
+def graph_BBQ(serie,name):
+    plt.figure()
+    max_val = float(np.array(serie[name].max()))
+    k = nber.shape[0]
+    
+    plt.plot(serie[name],color="darkblue")
+    for w in range(k): 
+        plt.fill_between(serie.index,0,max_val,where = (serie.index >= nber[w,0])&(serie.index <= nber[w,1]), 
+                     facecolor='blue',alpha=0.2)
+    
+    plt.gca().spines['right'].set_visible(False)
+    plt.gca().spines['top'].set_visible(False)
+    plt.gca().set_ylim(0, max_val)   
+    
+#***********  Peaks ***************      
+    lines_P = np.array(serie[serie.BBQ_P == 1].index)
+    for i in range(len(lines_P)):
+        plt.axvline(x = str(lines_P[i]) ,color='r',linestyle="--",alpha=0.8)
+    plt.show()        
+    
+#***********  troughs ***************  
+    plt.figure()
+    plt.plot(serie[name],color="darkblue")
+    for w in range(k): 
+        plt.fill_between(serie.index,0,max_val,where = (serie.index >= nber[w,0])&(serie.index <= nber[w,1]), 
+                     facecolor='blue',alpha=0.2)
+    
+    plt.gca().spines['right'].set_visible(False)
+    plt.gca().spines['top'].set_visible(False)
+    plt.gca().set_ylim(0, max_val)   
+    
+    plt.plot(serie[name],color="darkblue")    
+    lines_T = np.array(serie[serie.BBQ_T == 1].index)
+    for i in range(len(lines_T)):
+        plt.axvline(x = str(lines_T[i]) ,color='g',linestyle="--",alpha=0.8)
+    plt.show()
+    
+graph_BBQ(wage_adj,"wage_adj")
+
+graph_BBQ(unemp,"LNS14000024")
+
 #for i in range(2,10):
 #    print(unemp.iloc[i,0])
+# %%
+for i in range(len(lines)):
+    print(str(lines[i]))
 
 # %% Seasonally Adjusted
 
@@ -145,8 +197,8 @@ wage_sa = web.DataReader("CES3000000008", "fred", sdt,edt)
 wage = web.DataReader("AHEMAN", "fred", sdt, edt)
  
 plt.figure()
-plt.plot(wage_sa[wage_sa.index>"1990-01-01"])
-plt.plot(wage[wage.index>"1990-01-01"])
+plt.plot(wage_sa[wage_sa.index>"1990-01-01"],color="green",lw=1.8)
+plt.plot(wage[wage.index>"1990-01-01"],color="yellow",lw=1.8)
 
 # %%
 
@@ -198,17 +250,17 @@ wage['S'] = wage['S']/wage['S_1']
 wage['SA'] = wage['AHEMAN']/wage['S']
 
 
-plt.figure()
-plt.plot(wage[wage.index>"1990-01-01"]["AHEMAN"])
-plt.plot(wage[wage.index>"1990-01-01"]["SA"])
-
-
 # %%
 
 plt.figure()
-plt.plot(wage_sa[wage_sa.index>"2000-01-01"]["CES3000000008"])
-plt.plot(wage[wage.index>"2000-01-01"]["SA"])
-
+plt.plot(wage_sa[(wage_sa.index>"1998-01-01")&(wage_sa.index<"2015-06-01")]["CES3000000008"],'bo',alpha=0.3)
+plt.plot(wage[(wage.index>"1998-01-01")&(wage.index<"2015-06-01")]["SA"],color="red",lw=2)
+plt.xlabel("Year")
+plt.ylabel("Average hourly Earnings")
+plt.gca().spines["right"].set_visible(False)
+plt.gca().spines["top"].set_visible(False)
+plt.legend(['Published seasonally adjusted','Own procedure'])
+plt.savefig("SA.png")
           
 # %%          
 for i in range(0,12):
