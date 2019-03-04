@@ -135,23 +135,56 @@ BBQ(gnp)
 
 # %% Seasonally Adjusted
 
+# a good estimate of the seasonality cannot be made until the trend has been removed, and likewise a reliable estimate of the trend
+# cannot be computed until the seasonality has been removed. 
+ 
 # Dollars per Hour, Seasonally Adjusted
 wage_sa = web.DataReader("CES3000000008", "fred", sdt,edt) 
-# Dollars per Hour, NOT Seasonally Adjusted
-wage = web.DataReader("CEU0500000008", "fred", sdt, edt) 
 
+# Dollars per Hour, NOT Seasonally Adjusted
+wage = web.DataReader("AHEMAN", "fred", sdt, edt)
+ 
 plt.figure()
-plt.plot(wage_sa)
-plt.plot(wage)
+plt.plot(wage_sa[wage_sa.index>"1990-01-01"])
+plt.plot(wage[wage.index>"1990-01-01"])
 
 # %%
-gnp['SA'] = gnp["GNP"]
 
-T = len(gnp)
+wage['TD'] = np.nan
+T = len(wage)
 for i in range(6,T-6):                
-          gnp.iloc[i,3] = (gnp.iloc[i-6,0] + 2*np.sum(gnp.iloc[range(i-5,i+6),0]) + gnp.iloc[i+6,0])/24    
+          wage.iloc[i,1] = (wage.iloc[i-6,0] + 2*np.sum(wage.iloc[range(i-5,i+6),0]) + wage.iloc[i+6,0])/24    
+
+wage['SI'] = wage['AHEMAN']/wage['TD']
+wage['S'] = np.nan
+wage['S_1'] = np.nan
+
+# Finding S
+for t in range(0,12):
+    for i in range(6 + 12*2 + t, T -6 -12*2 , 12):                
+          wage.iloc[i,3] = (wage.iloc[i-12*2,2]+2*wage.iloc[i-12,2]+3*wage.iloc[i,2]+2*wage.iloc[i+12,2]+wage.iloc[i+12*2,2])/9
+
+# Finding S_1          
+for i in range(6 + 12*2 + 6, T -6-12*2-6):                
+          wage.iloc[i,4] = (wage.iloc[i-6,3] + 2*np.sum(wage.iloc[range(i-5,i+6),3]) + wage.iloc[i+6,3])/24    
+wage['S'] = wage['S']/wage['S_1']
+wage['SA'] = wage['AHEMAN']/wage['S']
+
+plt.figure()
+plt.plot(wage[wage.index>"1990-01-01"]["AHEMAN"])
+plt.plot(wage[wage.index>"1990-01-01"]["SA"])
 
 
+# %%
+
+plt.figure()
+plt.plot(wage_sa[wage_sa.index>"2000-01-01"]["CES3000000008"])
+plt.plot(wage[wage.index>"2000-01-01"]["SA"])
+
+          
+# %%          
+for i in range(0,12):
+    print(i)
 
 # %%
 gnp.GNP.plot()
