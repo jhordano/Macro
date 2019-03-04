@@ -150,8 +150,14 @@ plt.plot(wage[wage.index>"1990-01-01"])
 
 # %%
 
-wage['TD'] = np.nan
+##################
+# First Stage
+##################
+
+
 T = len(wage)
+wage['TD'] = np.nan
+# Finding the trend
 for i in range(6,T-6):                
           wage.iloc[i,1] = (wage.iloc[i-6,0] + 2*np.sum(wage.iloc[range(i-5,i+6),0]) + wage.iloc[i+6,0])/24    
 
@@ -163,12 +169,34 @@ wage['S_1'] = np.nan
 for t in range(0,12):
     for i in range(6 + 12*2 + t, T -6 -12*2 , 12):                
           wage.iloc[i,3] = (wage.iloc[i-12*2,2]+2*wage.iloc[i-12,2]+3*wage.iloc[i,2]+2*wage.iloc[i+12,2]+wage.iloc[i+12*2,2])/9
-
+          
 # Finding S_1          
 for i in range(6 + 12*2 + 6, T -6-12*2-6):                
           wage.iloc[i,4] = (wage.iloc[i-6,3] + 2*np.sum(wage.iloc[range(i-5,i+6),3]) + wage.iloc[i+6,3])/24    
 wage['S'] = wage['S']/wage['S_1']
 wage['SA'] = wage['AHEMAN']/wage['S']
+
+##################
+# Second Stage
+##################
+wage['SA_2'] = wage.SA.fillna(wage.AHEMAN)
+# Finding the trend
+for i in range(6,T-6):                
+          wage.iloc[i,1] = (wage.iloc[i-6,6] + 2*np.sum(wage.iloc[range(i-5,i+6),6]) + wage.iloc[i+6,6])/24    
+          
+wage['SI'] = wage['AHEMAN']/wage['TD']
+
+# Finding S
+for t in range(0,12):
+    for i in range(6 + 12*2 + t, T -6 -12*2 , 12):                
+          wage.iloc[i,3] = (wage.iloc[i-12*2,2]+2*wage.iloc[i-12,2]+3*wage.iloc[i,2]+2*wage.iloc[i+12,2]+wage.iloc[i+12*2,2])/9
+          
+# Finding S_1          
+for i in range(6 + 12*2 + 6, T -6-12*2-6):                
+          wage.iloc[i,4] = (wage.iloc[i-6,3] + 2*np.sum(wage.iloc[range(i-5,i+6),3]) + wage.iloc[i+6,3])/24    
+wage['S'] = wage['S']/wage['S_1']
+wage['SA'] = wage['AHEMAN']/wage['S']
+
 
 plt.figure()
 plt.plot(wage[wage.index>"1990-01-01"]["AHEMAN"])
