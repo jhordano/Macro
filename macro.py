@@ -23,10 +23,6 @@ IPC = web.DataReader("GNPDEF","fred",sdt,edt)
 # Average Hourly Earnings of Production and Nonsupervisory Employees: Manufacturing
 # Dollars per Hour, Seasonally Adjusted
 wage_adj = web.DataReader("CES3000000008", "fred", sdt,edt) 
-#wage_adj.head()
-
-#wage_adj['yy'] = wage_adj.year
-#wage_adj['mm'] = wage_adj.month
 
 wage_adj = wage_adj.groupby(pd.PeriodIndex(wage_adj.index, freq='Q')).mean()
 wage_adj = wage_adj.rename(columns={"CES3000000008":"wage_adj"})
