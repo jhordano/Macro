@@ -138,7 +138,7 @@ BBQ(unemp)
 BBQ(wage_adj)
 BBQ(gnp)
 
-def graph_BBQ(serie,name):
+def graph_BBQ(serie,name,save_g):
     plt.figure()
     max_val = float(np.array(serie[name].max()))
     k = nber.shape[0]
@@ -156,7 +156,8 @@ def graph_BBQ(serie,name):
     lines_P = np.array(serie[serie.BBQ_P == 1].index)
     for i in range(len(lines_P)):
         plt.axvline(x = str(lines_P[i]) ,color='r',linestyle="--",alpha=0.8)
-    plt.show()        
+    plt.show()
+    plt.savefig(save_g + '_P.png')        
     
 #***********  troughs ***************  
     plt.figure()
@@ -174,10 +175,13 @@ def graph_BBQ(serie,name):
     for i in range(len(lines_T)):
         plt.axvline(x = str(lines_T[i]) ,color='g',linestyle="--",alpha=0.8)
     plt.show()
+    plt.savefig(save_g + '_T.png')
     
-graph_BBQ(wage_adj,"wage_adj")
+graph_BBQ(wage_adj,"wage_adj","wage_BBQ")
 
-graph_BBQ(unemp,"LNS14000024")
+graph_BBQ(unemp,"LNS14000024","unemp_BBQ")
+
+#graph_BBQ(gnp,"GNP")
 
 #for i in range(2,10):
 #    print(unemp.iloc[i,0])
